@@ -4,9 +4,9 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import jwt from "jsonwebtoken";
 
-const AuthContext = createContext(null);
+const EmpAuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export const EmpAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email_id, password) => {
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch("/api/empLogin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email_id, password }),
@@ -75,19 +75,20 @@ export const AuthProvider = ({ children }) => {
     setTimeout(() => router.replace("/"), 100);
   };
 
-  const redirectUser = (role_id, student_id) => {
-    if (!student_id) return;
-    if (role_id === 1) router.replace(`/studentPersonalInformation/${student_id}`);
-    else if (role_id === 2) router.replace("/admin/dashboard");
-    else if (role_id === 3) router.replace("/faculty/dashboard");
+  const redirectUser = (role_id, employee_id) => {
+    if (!employee_id) return;
+    if (role_id === 1) router.replace(`/admin/dashboard/${employee_id}`);
+    else if (role_id === 2) router.replace(`/dean/dashboard/${employee_id}`);
+    else if (role_id === 3) router.replace(`/hod/dashboard/${employee_id}`);
+    else if (role_id === 4) router.replace(`/faculty/dashboard/${employee_id}`);
     else router.replace("/");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <EmpAuthContext.Provider value={{ user, login, logout, loading }}>
       {!loading && children}
-    </AuthContext.Provider>
+    </EmpAuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useEmpAuth = () => useContext(EmpAuthContext);

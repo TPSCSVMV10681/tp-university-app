@@ -6,24 +6,28 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/app/(auth)/login/AuthContext";
 
 export default function Navbar() {
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname(); 
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isOpen) {
-      document.body.classList.add("overflow-hidden"); // Prevent scrolling
+      document.body.classList.add("overflow-hidden");
     } else {
       document.body.classList.remove("overflow-hidden");
     }
   }, [isOpen]);
 
+  // Conditionally render navigation links
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Registration", href: "/register" },
-    { name: "Login", href: "/login" },
-  ];
+    !user && { name: "Login", href: "/login" }, // Hide login when user is logged in
+    !user && { name: "Employee Login", href: "/employeeLogin" }, // Hide emplogin when user is logged in
+    
+  ].filter(Boolean); // Remove null values
 
   return (
     <nav className="bg-blue-600 text-white shadow-lg">
@@ -47,7 +51,7 @@ export default function Navbar() {
               textShadow: `0 0 8px rgba(255, 255, 255, 0.8), 
                           0 0 16px rgba(255, 255, 255, 0.6), 
                           0 0 24px rgba(255, 255, 255, 0.4), 
-                          2px 2px 6px rgba(0, 0, 0, 0.3)` 
+                          2px 2px 6px rgba(0, 0, 0, 0.3)`
             }}
           >
             Sri Chandrasekharendra Saraswathi Viswa Mahavidyalaya
@@ -55,7 +59,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex space-x-6 items-center">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -67,6 +71,16 @@ export default function Navbar() {
               {link.name}
             </Link>
           ))}
+
+          {/* Show Logout button if user is logged in */}
+          {user && (
+            <button
+              onClick={logout}
+              className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Logout
+            </button>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -96,11 +110,24 @@ export default function Navbar() {
                 className={`py-2 text-xl text-white hover:text-gray-300 transition ${
                   pathname === link.href ? "border-b-2 border-white" : ""
                 }`}
-                onClick={() => setIsOpen(false)} 
+                onClick={() => setIsOpen(false)}
               >
                 {link.name}
               </Link>
             ))}
+
+            {/* Show Logout button if user is logged in */}
+            {user && (
+              <button
+                onClick={() => {
+                  logout();
+                  setIsOpen(false); // Close menu after logout
+                }}
+                className="bg-red-500 px-6 py-2 rounded hover:bg-red-600 transition text-xl"
+              >
+                Logout
+              </button>
+            )}
 
             {/* Close Button */}
             <button
